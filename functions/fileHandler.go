@@ -8,7 +8,7 @@ import (
 var strtRune = 32
 var symbolHeight = 8
 
-func ReadFromFile(fileName string) (map[rune][]string, error) {
+func MakeSymbolsMapFromFile(fileName string) (map[rune][]string, error) {
 	file, errRead := os.Open(fileName)
 	if errRead != nil {
 		return nil, errRead

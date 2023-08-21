@@ -7,21 +7,14 @@ import (
 )
 
 func main() {
-	mapOfSymbols, err := functions.ReadFromFile("standard.txt")
+	mapOfSymbols, err := functions.MakeSymbolsMapFromFile("standard.txt")
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
 	}
 
-	for symbol, lines := range mapOfSymbols {
-		fmt.Println("Symbol:", string(symbol))
-		for _, line := range lines {
-			fmt.Println(line)
-		}
-		fmt.Println("-----")
-	}
-
-	for _, row := range mapOfSymbols['A'] {
+	result := functions.GetProcededSclice(mapOfSymbols, "Hello\nWorld")
+	for _, row := range result {
 		fmt.Println(row)
 	}
 }
