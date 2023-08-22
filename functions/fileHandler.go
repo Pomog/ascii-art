@@ -43,3 +43,23 @@ func processSymbols(fileScanner *bufio.Scanner) (map[rune][]string, error) {
 
 	return symbols, nil
 }
+
+func WriteToFile(fileName string, lines []string) error { // TODO: unit tests
+	file, errWrite := os.Create(fileName)
+	if errWrite != nil {
+		return errWrite
+	}
+	defer file.Close()
+
+	fileWriter := bufio.NewWriter(file)
+	for _, line := range lines {
+		fileWriter.WriteString(line + "\n")
+	}
+
+	// Flush any buffered data to the file
+	if errFlush := fileWriter.Flush(); errFlush != nil {
+		return errFlush
+	}
+
+	return nil
+}

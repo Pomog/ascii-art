@@ -9,7 +9,7 @@ var errNotAllowedSymbols = "Not allowed symbols in input string"
 
 func GetProcededSclice(mapOfSymbols map[rune][]string, inputString string) []string {
 	if checkforAllowedSymbols(inputString) {
-		fmt.Println(errNotAllowedSymbols + ": " + inputString)
+		fmt.Println(errNotAllowedSymbols)
 		os.Exit(1)
 	}
 
@@ -59,4 +59,10 @@ func composeResultingSlice(mapOfSymbols map[rune][]string, row string) []string 
 		finalRow = ""
 	}
 	return result
+}
+
+func PrintResult(result []string) {
+	for _, row := range result {
+		fmt.Println(row)
+	}
 }
