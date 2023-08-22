@@ -51,12 +51,17 @@ func newLineSybolHandling(inputString string) []string {
 func composeResultingSlice(mapOfSymbols map[rune][]string, row string) []string {
 	var result []string
 	var finalRow string
-	for i := 0; i < symbolHeight; i++ {
-		for _, symbol := range row {
-			finalRow += mapOfSymbols[symbol][i]
+
+	if row != "" {
+		for i := 0; i < symbolHeight; i++ {
+			for _, symbol := range row {
+				finalRow += mapOfSymbols[symbol][i]
+			}
+			result = append(result, finalRow)
+			finalRow = ""
 		}
-		result = append(result, finalRow)
-		finalRow = ""
+	} else {
+		result = append(result, "")
 	}
 	return result
 }
