@@ -8,7 +8,7 @@ import (
 var errNotAllowedSymbols = "Not allowed symbols in input string"
 
 func GetProcededSclice(mapOfSymbols map[rune][]string, inputString string) []string {
-	if checkforAllowedSymbols(inputString) {
+	if checkForNotAllowedSymbols(inputString) {
 		fmt.Println(errNotAllowedSymbols)
 		os.Exit(1)
 	}
@@ -20,7 +20,7 @@ func GetProcededSclice(mapOfSymbols map[rune][]string, inputString string) []str
 	return result
 }
 
-func checkforAllowedSymbols(inputString string) bool {
+func checkForNotAllowedSymbols(inputString string) bool {
 	for _, symbol := range inputString {
 		if (symbol <= 32 && symbol >= 126) || symbol != 10 {
 			return false
@@ -33,7 +33,7 @@ func newLineSybolHandling(inputString string) []string {
 	var slicedString []string
 	var row string
 	for _, symbol := range inputString {
-		if symbol == 10 {
+		if symbol == '\n' {
 			slicedString = append(slicedString, row)
 			row = ""
 		} else {
@@ -50,15 +50,15 @@ func newLineSybolHandling(inputString string) []string {
 
 func composeResultingSlice(mapOfSymbols map[rune][]string, row string) []string {
 	var result []string
-	var finalRow string
+	var currentRow string
 
 	if row != "" {
 		for i := 0; i < symbolHeight; i++ {
 			for _, symbol := range row {
-				finalRow += mapOfSymbols[symbol][i]
+				currentRow += mapOfSymbols[symbol][i]
 			}
-			result = append(result, finalRow)
-			finalRow = ""
+			result = append(result, currentRow)
+			currentRow = ""
 		}
 	} else {
 		result = append(result, "")
