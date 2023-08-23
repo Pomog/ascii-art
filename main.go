@@ -10,6 +10,7 @@ import (
 
 func main() {
 	args := os.Args[1:]
+	checkArgs(args)
 
 	unquotedString, errUnquot := strconv.Unquote((`"` + args[0] + `"`))
 	if errUnquot != nil {
@@ -17,7 +18,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	mapOfSymbols, err := functions.MakeSymbolsMapFromFile("standard.txt")
+	mapOfSymbols, err := functions.MakeSymbolsMapFromFile(args[1] + ".txt")
 	if err != nil {
 		fmt.Println("Error:", err)
 		os.Exit(1)
@@ -40,4 +41,12 @@ func farewell(resultFileName string) {
 	fmt.Println("Finished. No errors. Thanks for using.")
 	fmt.Printf("The result is in the file --> %s <--\n", resultFileName)
 	fmt.Println("Goodbye!")
+}
+
+func checkArgs(args []string) {
+	if len(args) != 2 {
+		fmt.Println("Error: wrong number of arguments")
+		fmt.Println("Usage: go run main.go \"input string\" [BANNER]")
+		os.Exit(1)
+	}
 }
