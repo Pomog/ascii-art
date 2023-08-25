@@ -13,26 +13,8 @@ import (
 func main() {
 	args := os.Args[1:]
 
-	// Define a flag named "color" with a default value and usage description
-	colorPtr := flag.String("color", "white", "Specify a color")
-
-	// Parse the command-line arguments
-	flag.Parse()
-
-	// Access the value of the "color" flag
-	color := *colorPtr
-
-	// Perform your logic based on the color
-	switch color {
-	case "red":
-		fmt.Println("You chose red!")
-	case "green":
-		fmt.Println("You chose green!")
-	case "blue":
-		fmt.Println("You chose blue!")
-	default:
-		fmt.Println("Unrecognized color:", color)
-	}
+	// Parse flags and get color value
+	parseFlags()
 
 	for i, arg := range args {
 		fmt.Printf("Argument %v: %s\n", i, arg)
@@ -90,4 +72,24 @@ func checkArgs(args []string) {
 		fmt.Println("Usage: go run main.go \"input string\" [BANNER]")
 		os.Exit(1)
 	}
+}
+
+func parseFlags() string {
+	colorPtr := flag.String("color", "white", "Specify a color")
+	flag.Parse()
+
+	color := *colorPtr
+
+	switch color {
+	case "red":
+		fmt.Println("You chose red!")
+	case "green":
+		fmt.Println("You chose green!")
+	case "blue":
+		fmt.Println("You chose blue!")
+	default:
+		fmt.Println("Unrecognized color:", color)
+	}
+
+	return color
 }
