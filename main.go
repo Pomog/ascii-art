@@ -12,6 +12,7 @@ import (
 )
 
 var resultFileName = "result.txt"
+var lettersToBeColored string
 
 func main() {
 	args := os.Args[1:]
@@ -19,10 +20,10 @@ func main() {
 
 	// Parse color flag as string and check if it is valid color, default color is white
 	colorFlag := processColorFlag(args)
-	fmt.Println("Color:", colorFlag)
 
 	// remove color flag from args if present
 	if getArgumentsCount(args) == 4 {
+		lettersToBeColored = args[1]
 		args = args[2:]
 	}
 
@@ -39,7 +40,7 @@ func main() {
 	}
 
 	// obtain and combine all ascii-art symbols into the one slice of strings by layers to wokr with hole string
-	result := functions.GetProcededSclice(mapOfSymbols, unquotedString)
+	result := functions.GetProcededSclice(mapOfSymbols, unquotedString, lettersToBeColored, colorFlag)
 
 	functions.PrintResult(result)
 
@@ -96,11 +97,11 @@ if there is no -color flag, then the color is white by default
 return color value as string
 */
 func parseColorFlag() string {
-	var color string
-	flag.StringVar(&color, "color", "white", "Specify a color")
+	var colorStr string
+	flag.StringVar(&colorStr, "color", "white", "Specify a color")
 	flag.Parse()
 
-	return color
+	return colorStr
 }
 
 /*
