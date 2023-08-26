@@ -11,28 +11,25 @@ import (
 	"github.com/Pomog/ascii-art/functions"
 )
 
+var resultFileName = "result.txt"
+
 func main() {
 	args := os.Args[1:]
 	checkArgsLen(args)
 
-	// Parse flags and get color value
-	colorFlag := parseColorFlag()
+	// Parse color flag as string and check if it is valid color, default color is white
+	colorFlag := processColorFlag(args)
 	fmt.Println("Color:", colorFlag)
-
-	for i, arg := range args {
-		fmt.Printf("Argument %v: %s\n", i, arg)
-	}
 
 	// remove color flag from args if present
 	if getArgumentsCount(args) == 4 {
 		args = args[2:]
 	}
 
-	// get string from args wich will be converted to ascii art
+	// get string from args wich will be converted to ascii-art, proceded string is the first element of args
 	unquotedString, errUnquot := strconv.Unquote((`"` + args[0] + `"`))
 	if errUnquot != nil {
-		fmt.Println("Error Unquote:", errUnquot)
-		os.Exit(1)
+		log.Fatal(errUnquot)
 	}
 
 	// get map of symbols from file, where key is a symbol and value is a slice of strings wich represents the symbol
@@ -41,17 +38,31 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// obtain and combine all ascii-art symbols into the one slice of strings by layers to wokr with hole string
 	result := functions.GetProcededSclice(mapOfSymbols, unquotedString)
 
 	functions.PrintResult(result)
 
-	// write string ascii art to the result.txt file
-	errWrite := functions.WriteToFile("result.txt", result)
+	// write string ascii art to the file
+	errWrite := functions.WriteToFile(resultFileName, result)
 	if errWrite != nil {
 		log.Fatal(errWrite)
 	}
 
-	farewell("result.txt")
+	farewell(resultFileName)
+}
+
+/*
+processColorFlag checks if a given color string is one of the valid colors.
+Valid colors include: red, orange, yellow, green, blue, indigo, violet.
+*/
+func processColorFlag(args []string) string {
+	colorFlag := parseColorFlag()
+	if !isValidColor(colorFlag) && getArgumentsCount(args) == 4 {
+		colorErr := "Error: wrong color value\nExpected: one of the colors: red, orange, yellow, green, blue, indigo, violet\nGot: " + colorFlag
+		log.Fatal(colorErr)
+	}
+	return colorFlag
 }
 
 /*
@@ -95,9 +106,11 @@ func parseColorFlag() string {
 /*
 return expected number of arguments
 2 if no -color flag: first - string, second - name of file with symbols ascii-art
-4 if -color flag is present: first - -color flag color definition without spaces, second - <letters to be colored>
-
-	third - string, fourth - name of file with symbols ascii-art
+4 if -color flag is present:
+** first - color flag - color definition without spaces,
+** second - <letters to be colored>
+** third - string,
+** fourth - name of file with symbols ascii-art
 */
 func getArgumentsCount(args []string) int {
 	if strings.Contains(args[0], "color") {
@@ -105,4 +118,20 @@ func getArgumentsCount(args []string) int {
 	} else {
 		return 2
 	}
+}
+
+/*
+isValidColor checks if a given color string is one of the valid colors.
+Valid colors include: red, orange, yellow, green, blue, indigo, violet.
+*/
+func isValidColor(color string) bool {
+	validColors := []string{"red", "orange", "yellow", "green", "blue", "indigo", "violet"}
+	lowercaseColor := strings.ToLower(color)
+
+	for _, validColor := range validColors {
+		if lowercaseColor == validColor {
+			return true
+		}
+	}
+	return false
 }

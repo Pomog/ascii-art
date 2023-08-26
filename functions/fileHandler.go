@@ -60,6 +60,6 @@ func WriteToFile(fileName string, lines []string) error { // TODO: unit tests
 	if errFlush := fileWriter.Flush(); errFlush != nil {
 		return errFlush
 	}
-
+	file.Close() //deferred closure may not be executed if an error occurs before the defer statement
 	return nil
 }
