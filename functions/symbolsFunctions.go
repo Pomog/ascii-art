@@ -34,7 +34,7 @@ func GetProcededSclice(mapOfSymbols map[rune][]string, inputString, lettersToBeC
 
 func CheckForNotAllowedSymbols(inputString string) bool {
 	for _, symbol := range inputString {
-		if symbol < 32 || symbol > 127 {
+		if (symbol < 32 || symbol > 127) && symbol != 10 {
 			fmt.Println(string(symbol))
 			fmt.Println(symbol)
 			return false
@@ -69,7 +69,7 @@ func composeResultingSlice(mapOfSymbols map[rune][]string, row, lettersToBeColor
 	if row != "" {
 		for i := 0; i < symbolHeight; i++ {
 			for _, symbol := range row {
-				currentRow += processSymbol(symbol, mapOfSymbols, lettersToBeColored, colorFlag, i)
+				currentRow += processSymbolsRow(symbol, mapOfSymbols, lettersToBeColored, colorFlag, i)
 			}
 			result = append(result, currentRow)
 			currentRow = ""
@@ -80,7 +80,7 @@ func composeResultingSlice(mapOfSymbols map[rune][]string, row, lettersToBeColor
 	return result
 }
 
-func processSymbol(symbol rune, mapOfSymbols map[rune][]string, lettersToBeColored, colorFlag string, i int) string {
+func processSymbolsRow(symbol rune, mapOfSymbols map[rune][]string, lettersToBeColored, colorFlag string, i int) string {
 	if lettersToBeColored != "" && strings.Contains(lettersToBeColored, string(symbol)) {
 		return colorize(mapOfSymbols[symbol][i], colorFlag)
 	}
