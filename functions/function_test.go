@@ -41,6 +41,7 @@ func TestSplitStringByNewline(t *testing.T) {
 	}
 	for _, test := range tests {
 		result := splitStringByNewline(test.input.(string))
+		fmt.Printf("Expected: %v, Got: %v\n", test.expected, result)
 		if !slicesMatch(result, test.expected.([]string)) {
 			t.Errorf("For input %v, expected %v, got %v", test.input, test.expected, result)
 		}
