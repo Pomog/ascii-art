@@ -40,12 +40,12 @@ func main() {
 	}
 
 	// obtain and combine all ascii-art symbols into the one slice of strings by layers to wokr with hole string
-	result := functions.GetProcededSclice(mapOfSymbols, unquotedString, lettersToBeColored, colorFlag)
+	result := functions.GetProcessedSlice(mapOfSymbols, unquotedString, lettersToBeColored, colorFlag)
 
 	functions.PrintResult(result)
 
-	// write string ascii art to the file
-	errWrite := functions.WriteToFile(resultFileName, result)
+	// write string ascii art to the file result.txt. The color flag is not used in the file, lettersToBeColored not taken into account.
+	errWrite := functions.WriteToTxtFile(resultFileName, mapOfSymbols, unquotedString)
 	if errWrite != nil {
 		log.Fatal(errWrite)
 	}

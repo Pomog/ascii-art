@@ -44,7 +44,9 @@ func processSymbols(fileScanner *bufio.Scanner) (map[rune][]string, error) {
 	return symbols, nil
 }
 
-func WriteToFile(fileName string, lines []string) error { // TODO: unit tests
+func WriteToTxtFile(fileName string, mapOfSymbols map[rune][]string, inputString string) error { // TODO: unit tests
+	result := GetProcessedSlice(mapOfSymbols, inputString, "", "white")
+
 	file, errWrite := os.Create(fileName)
 	if errWrite != nil {
 		return errWrite
@@ -52,7 +54,7 @@ func WriteToFile(fileName string, lines []string) error { // TODO: unit tests
 	defer file.Close()
 
 	fileWriter := bufio.NewWriter(file)
-	for _, line := range lines {
+	for _, line := range result {
 		fileWriter.WriteString(line + "\n")
 	}
 
