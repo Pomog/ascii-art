@@ -15,7 +15,7 @@ var resultFileName = "result.txt"
 var lettersToBeColored string
 
 func main() {
-	functions.PrintTemunalWidth()
+	functions.PrintTerminalWidth()
 
 	args := os.Args[1:]
 	checkArgsLen(args)
