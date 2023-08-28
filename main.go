@@ -11,25 +11,25 @@ import (
 	"github.com/Pomog/ascii-art/functions"
 )
 
-var resultFileName = "result.txt"
+var resultsFileName = "result.txt"
 var lettersToBeColored string = ""
 var validColors = []string{"red", "orange", "yellow", "green", "blue", "indigo", "violet"}
 var validAligns = []string{"left", "center", "right", "justify"}
 
 func main() {
-	functions.PrintTerminalWidth()
-
 	args := os.Args[1:]
 
 	colorFlagPresent := isColorFlagPresent(args)
 
-	// Parse color flag as string and check if it is valid color, default color is white
+	// Parse color and align flag as strings and check if they are valid
 	colorFlag, alignFlag := processFlags(args)
 	// remove flags from args
 	args = flag.Args()
 
-	fmt.Printf("alignFlag: %s\n", alignFlag)
+	functions.PrintTerminalWidth()           // for debug
+	fmt.Printf("alignFlag: %s\n", alignFlag) // for debug
 
+	// parsing and removing lettersToBeColored from args
 	if colorFlagPresent {
 		lettersToBeColored = args[0]
 		args = args[1:]
@@ -37,15 +37,11 @@ func main() {
 
 	// get map of symbols from file, where key is a symbol and value is a slice of strings wich represents the symbol
 	mapOfSymbols, err := functions.MakeSymbolsMapFromFile(args[1] + ".txt")
-	if err != nil {
-		log.Fatal(err)
-	}
+	checkErrorAndFatal(err)
 
 	// get string from args wich will be converted to ascii-art, proceded string is the first element of args
 	unquotedString, errUnquot := strconv.Unquote((`"` + args[0] + `"`))
-	if errUnquot != nil {
-		log.Fatal(errUnquot)
-	}
+	checkErrorAndFatal(errUnquot)
 
 	// obtain and combine all ascii-art symbols into the one slice of strings by layers to wokr with hole string
 	result := functions.GetProcessedSlice(mapOfSymbols, unquotedString, lettersToBeColored, colorFlag)
@@ -53,12 +49,18 @@ func main() {
 	functions.PrintResult(result)
 
 	// write string ascii art to the file result.txt. The color flag is not used in the file, lettersToBeColored not taken into account.
-	errWrite := functions.WriteToTxtFile(resultFileName, mapOfSymbols, unquotedString)
-	if errWrite != nil {
-		log.Fatal(errWrite)
-	}
+	errWrite := functions.WriteToTxtFile(resultsFileName, mapOfSymbols, unquotedString)
+	checkErrorAndFatal(errWrite)
 
-	farewell(resultFileName)
+	farewell(resultsFileName)
+}
+
+//Helper functions
+
+func checkErrorAndFatal(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 /*
@@ -70,25 +72,31 @@ func farewell(resultFileName string) {
 }
 
 /*
-isValidColor checks if a given color string is one of the valid colors.
-Valid colors include: red, orange, yellow, green, blue, indigo, violet.
+if there is no -color flag, then the color is white by default
+if there is no -align flag, then the align is left by default
 */
-func isValidColor(color string) bool {
-	lowercaseColor := strings.ToLower(color)
+func processFlags(args []string) (string, string) {
+	colorFlag, alignFlag := parseFlags()
 
-	for _, validColor := range validColors {
-		if lowercaseColor == validColor {
-			return true
-		}
+	if !isValueValid(colorFlag, validColors) {
+		colorErr := "Error: wrong color value\nExpected: one of the colors: red, orange, yellow, green, blue, indigo, violet\nGot: " + colorFlag
+		log.Fatal(colorErr)
 	}
-	return false
+
+	if !isValueValid(alignFlag, validAligns) {
+		alignErr := "Error: wrong align value\nExpected: one of the aligns: left, center, right, justify\nGot: " + alignFlag
+		log.Fatal(alignErr)
+	}
+
+	return colorFlag, alignFlag
 }
 
-func isValidAlign(align string) bool {
-	lowercaseAlign := strings.ToLower(align)
-
-	for _, validAlign := range validAligns {
-		if lowercaseAlign == validAlign {
+/*
+isValueValid checks if the value is in the slice of allowed values.
+*/
+func isValueValid(value string, allowedValues []string) bool {
+	for _, allowedValue := range allowedValues {
+		if strings.ToLower(value) == allowedValue {
 			return true
 		}
 	}
@@ -96,26 +104,14 @@ func isValidAlign(align string) bool {
 }
 
 /*
-if there is no -color flag, then the color is white by default
-if there is no -align flag, then the align is left by default
+parseFlags parses the flags and returns the color and align flags as strings.
 */
-func processFlags(args []string) (string, string) {
+func parseFlags() (string, string) {
 	var colorFlag, alignFlag string
 
 	flag.StringVar(&colorFlag, "color", "white", "Specify a color")
 	flag.StringVar(&alignFlag, "align", "left", "Specify alignment (left, center, right, justify)")
 	flag.Parse()
-
-	if !isValidColor(colorFlag) {
-		colorErr := "Error: wrong color value\nExpected: one of the colors: red, orange, yellow, green, blue, indigo, violet\nGot: " + colorFlag
-		log.Fatal(colorErr)
-	}
-
-	if !isValidAlign(alignFlag) {
-		alignErr := "Error: wrong align value\nExpected: one of the aligns: left, center, right, justify\nGot: " + alignFlag
-		log.Fatal(alignErr)
-	}
-
 	return colorFlag, alignFlag
 }
 
