@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"syscall"
+	"unsafe"
 )
 
 // ANSI color codes
@@ -146,4 +148,31 @@ func PrintResult(result []string) {
 	for _, row := range result {
 		fmt.Println(row)
 	}
+}
+
+func getTerminalWidth() (int, error) {
+	fd := uintptr(syscall.Stdout)
+	ws := &winsize{}
+
+	_, _, err := syscall.Syscall(syscall.SYS_IOCTL, fd, uintptr(syscall.TIOCGWINSZ), uintptr(unsafe.Pointer(ws)))
+	if err != 0 {
+		return 0, err
+	}
+
+	return int(ws.Col), nil
+}
+
+type winsize struct {
+	Row    uint16
+	Col    uint16
+	Xpixel uint16
+	Ypixel uint16
+}
+
+func PrintTemunalWidth() {
+	width, err := getTerminalWidth()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(width)
 }
