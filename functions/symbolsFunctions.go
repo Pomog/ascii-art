@@ -151,9 +151,17 @@ func PrintResult(result []string) {
 }
 
 func getTerminalWidth() (int, error) {
-	fd := uintptr(syscall.Stdout)
-	ws := &winsize{}
+	// // uintptr is an integer type that is large enough to hold the bit pattern of any pointer.
+	fd := uintptr(syscall.Stdout) //represents the file descriptor constant for the standard output stream
+	ws := &winsize{}              //This instance will be used to store the retrieved terminal window size information.
 
+	//Making a System Call (syscall.Syscall)
+	/*
+		syscall.SYS_IOCTL: This is a constant representing the IOCTL system call, which is used for device control operations.
+		fd: The file descriptor for standard output.
+		uintptr(syscall.TIOCGWINSZ): A constant representing the TIOCGWINSZ operation code, used to retrieve terminal window size information.
+		uintptr(unsafe.Pointer(ws)): A pointer to the winsize struct instance, cast to uintptr using unsafe.Pointer.
+	*/
 	_, _, err := syscall.Syscall(syscall.SYS_IOCTL, fd, uintptr(syscall.TIOCGWINSZ), uintptr(unsafe.Pointer(ws)))
 	if err != 0 {
 		return 0, err
@@ -162,14 +170,20 @@ func getTerminalWidth() (int, error) {
 	return int(ws.Col), nil
 }
 
+/*
+winsize is a struct that contains the terminal width and height.
+*/
 type winsize struct {
-	Row    uint16
+	Row    uint16 //unsigned 16-bit integer
 	Col    uint16
 	Xpixel uint16
 	Ypixel uint16
 }
 
-func PrintTemunalWidth() {
+/*
+system calls to interact with the underlying operating system to obtain information about the terminal
+*/
+func PrintTerminalWidth() {
 	width, err := getTerminalWidth()
 	if err != nil {
 		log.Fatal(err)
