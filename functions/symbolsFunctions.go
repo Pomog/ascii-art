@@ -26,7 +26,7 @@ var errNotAllowedSymbols = "Not allowed symbols in the input string"
 GetProcessedSlice returns a slice of strings which represents the input string as ASCII art.
 The resulting slice is obtained by combining all ASCII art symbols into one slice of strings by layers to work with the whole string.
 */
-func GetProcessedSlice(mapOfSymbols map[rune][]string, inputString, lettersToBeColored, colorFlag string) []string {
+func GetProcessedSlice(mapOfSymbols map[rune][]string, inputString, lettersToBeColored, colorFlag, alignFlag string) []string {
 	if !CheckForNotAllowedSymbols(inputString) {
 		log.Fatal(errNotAllowedSymbols) //error can be retured to the caller here and after. but I think it's better to use log.Fatal in this case
 	}
@@ -35,7 +35,51 @@ func GetProcessedSlice(mapOfSymbols map[rune][]string, inputString, lettersToBeC
 	for _, row := range splitStringByNewline(inputString) {
 		result = append(result, composeResultingSlice(mapOfSymbols, row, lettersToBeColored, colorFlag)...)
 	}
+
+	implementAlignFlag(alignFlag, &result)
+
 	return result
+}
+
+/*
+implementAlignFlag implements the align flag using pointers to the result slice.
+*/
+func implementAlignFlag(alignFlag string, result *[]string) {
+	*result = alignText(*result, alignFlag)
+}
+
+/*
+alignText aligns the input string to the left, center, right or justify of the terminal window.
+*/
+func alignText(result []string, alignmentFlag string) []string {
+	var alignedResult []string
+
+	for _, row := range result {
+		padding := getAlignmentPadding(alignmentFlag, len(row))
+		alignedResult = append(alignedResult, padding+row)
+	}
+
+	return alignedResult
+}
+
+/*
+modified the input string to be aligned to the left, center, right or justify of the terminal window.
+by adding spaces
+*/
+func getAlignmentPadding(alignmentFlag string, rowWidth int) string {
+	terminalWidth, err := getTerminalWidth()
+	CheckErrorAndFatal(err)
+
+	switch alignmentFlag {
+	case "right":
+		return strings.Repeat(" ", terminalWidth-rowWidth)
+	case "center":
+		return strings.Repeat(" ", (terminalWidth-rowWidth)/2)
+	case "justify": // TODO: implement justify
+		return ""
+	default:
+		return ""
+	}
 }
 
 /*
@@ -189,4 +233,10 @@ func PrintTerminalWidth() {
 		log.Fatal(err)
 	}
 	fmt.Println(width)
+}
+
+func CheckErrorAndFatal(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
 }

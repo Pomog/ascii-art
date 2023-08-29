@@ -13,7 +13,7 @@ import (
 
 var resultsFileName = "result.txt"
 var lettersToBeColored string = ""
-var validColors = []string{"red", "orange", "yellow", "green", "blue", "indigo", "violet"}
+var validColors = []string{"red", "orange", "yellow", "green", "blue", "indigo", "violet", "white"}
 var validAligns = []string{"left", "center", "right", "justify"}
 
 func main() {
@@ -37,31 +37,25 @@ func main() {
 
 	// get map of symbols from file, where key is a symbol and value is a slice of strings wich represents the symbol
 	mapOfSymbols, err := functions.MakeSymbolsMapFromFile(args[1] + ".txt")
-	checkErrorAndFatal(err)
+	functions.CheckErrorAndFatal(err)
 
 	// get string from args wich will be converted to ascii-art, proceded string is the first element of args
 	unquotedString, errUnquot := strconv.Unquote((`"` + args[0] + `"`))
-	checkErrorAndFatal(errUnquot)
+	functions.CheckErrorAndFatal(errUnquot)
 
 	// obtain and combine all ascii-art symbols into the one slice of strings by layers to wokr with hole string
-	result := functions.GetProcessedSlice(mapOfSymbols, unquotedString, lettersToBeColored, colorFlag)
+	result := functions.GetProcessedSlice(mapOfSymbols, unquotedString, lettersToBeColored, colorFlag, alignFlag)
 
 	functions.PrintResult(result)
 
 	// write string ascii art to the file result.txt. The color flag is not used in the file, lettersToBeColored not taken into account.
 	errWrite := functions.WriteToTxtFile(resultsFileName, mapOfSymbols, unquotedString)
-	checkErrorAndFatal(errWrite)
+	functions.CheckErrorAndFatal(errWrite)
 
 	farewell(resultsFileName)
 }
 
-//Helper functions
-
-func checkErrorAndFatal(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
-}
+//	>>>    Helper functions    <<<
 
 /*
 print farewell message
