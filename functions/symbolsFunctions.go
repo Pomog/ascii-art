@@ -3,6 +3,7 @@ package functions
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"strings"
 	"syscall"
 	"unsafe"
@@ -55,7 +56,8 @@ func alignText(result []string, alignmentFlag string) []string {
 	var alignedResult []string
 
 	for _, row := range result {
-		padding := getAlignmentPadding(alignmentFlag, len(row))
+		rowLengthWithOutColor := len(regexp.MustCompile("\033\\[[0-9;]*m").ReplaceAllString(row, ""))
+		padding := getAlignmentPadding(alignmentFlag, rowLengthWithOutColor)
 		alignedResult = append(alignedResult, padding+row)
 	}
 

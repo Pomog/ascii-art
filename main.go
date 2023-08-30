@@ -58,14 +58,6 @@ func main() {
 //	>>>    Helper functions    <<<
 
 /*
-print farewell message
-*/
-func farewell(resultFileName string) {
-	message := fmt.Sprintf("Finished. No errors. Thanks for using.\nThe result is in the file --> %s <--\nGoodbye!", resultFileName)
-	fmt.Println(message)
-}
-
-/*
 if there is no -color flag, then the color is white by default
 if there is no -align flag, then the align is left by default
 */
@@ -86,18 +78,6 @@ func processFlags(args []string) (string, string) {
 }
 
 /*
-isValueValid checks if the value is in the slice of allowed values.
-*/
-func isValueValid(value string, allowedValues []string) bool {
-	for _, allowedValue := range allowedValues {
-		if strings.ToLower(value) == allowedValue {
-			return true
-		}
-	}
-	return false
-}
-
-/*
 parseFlags parses the flags and returns the color and align flags as strings.
 */
 func parseFlags() (string, string) {
@@ -109,6 +89,18 @@ func parseFlags() (string, string) {
 	return colorFlag, alignFlag
 }
 
+/*
+isValueValid checks if the value is in the slice of allowed values.
+*/
+func isValueValid(value string, allowedValues []string) bool {
+	for _, allowedValue := range allowedValues {
+		if strings.ToLower(value) == allowedValue {
+			return true
+		}
+	}
+	return false
+}
+
 func isColorFlagPresent(args []string) bool {
 	for _, arg := range args {
 		if strings.Contains(arg, "-color") {
@@ -116,4 +108,12 @@ func isColorFlagPresent(args []string) bool {
 		}
 	}
 	return false
+}
+
+/*
+print farewell message
+*/
+func farewell(resultFileName string) {
+	message := fmt.Sprintf("Finished. No errors. Thanks for using.\nThe result is in the file --> %s <--\nGoodbye!", resultFileName)
+	fmt.Println(message)
 }
