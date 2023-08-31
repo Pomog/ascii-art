@@ -249,11 +249,15 @@ func GetSymbolsMapVerticalRepresentation(mapOfSymbols map[rune][]string) map[run
 	var currentSymbol []string
 
 	for symbol, symbolRepresentation := range mapOfSymbols {
-		for _, row := range symbolRepresentation {
-			verticalRow += string(row[0])
+		for i := 0; i < len(symbolRepresentation[0]); i++ {
+			for _, row := range symbolRepresentation {
+				verticalRow += string(row[i])
+			}
+			currentSymbol = append(currentSymbol, verticalRow)
+			verticalRow = ""
 		}
-		currentSymbol = append(currentSymbol, verticalRow)
 		result[symbol] = currentSymbol
+		currentSymbol = nil
 	}
 	return result
 }

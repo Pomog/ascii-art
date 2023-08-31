@@ -60,3 +60,14 @@ func slicesMatch(slice1, slice2 []string) bool {
 	}
 	return true
 }
+
+func TestGetSymbolsMapVerticalRepresentation(t *testing.T) {
+	test := []struct {
+		input    interface{}
+		expected interface{}
+	}{
+		{map[rune][]string{'a': {"a1", "b2", "c3"}}, map[rune][]string{'a': {"abc", "123"}}},
+		{map[rune][]string{'a': {"a1", "b2", "c3"}, 'b': {"a1", "b2", "c3"}}, map[rune][]string{'a': {"abc", "123"}, 'b': {"abc", "123"}}},
+	}
+	runTest(t, GetSymbolsMapVerticalRepresentation, test)
+}

@@ -65,3 +65,39 @@ func WriteToTxtFile(fileName string, mapOfSymbols map[rune][]string, inputString
 	file.Close() //deferred closure may not be executed if an error occurs before the defer statement
 	return nil
 }
+
+func ReadFromTxtFileVertical(fileName string) []string {
+	file, errRead := os.Open(fileName)
+	CheckErrorAndFatal(errRead)
+	defer file.Close()
+
+	fileScanner := bufio.NewScanner(file)
+	lines := getLines(fileScanner)
+
+	var verticalRow string
+	var newRows []string
+
+	for i := 0; i < len(lines[0]); i++ {
+		for _, row := range lines {
+			verticalRow += string(row[i])
+		}
+		newRows = append(newRows, verticalRow)
+		verticalRow = ""
+	}
+	return newRows
+}
+
+func getLines(fileScanner *bufio.Scanner) []string {
+	var result []string
+
+	for fileScanner.Scan() {
+		line := fileScanner.Text()
+		result = append(result, line)
+	}
+
+	if errScan := fileScanner.Err(); errScan != nil {
+		CheckErrorAndFatal(errScan)
+	}
+
+	return result
+}

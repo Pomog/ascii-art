@@ -40,8 +40,11 @@ func main() {
 	functions.CheckErrorAndFatal(err)
 
 	mapOfSymbolsVewrtical := functions.GetSymbolsMapVerticalRepresentation(mapOfSymbols)
-	fmt.Println("mapOfSymbolsVewrtical")
-	fmt.Println(mapOfSymbolsVewrtical) // for debug
+	fmt.Println(mapOfSymbolsVewrtical['O']) // for debug
+
+	testVert := functions.ReadFromTxtFileVertical("result.txt")
+	fmt.Println("testVert") // for debug
+	fmt.Println(testVert)   // for debug
 
 	// get string from args wich will be converted to ascii-art, proceded string is the first element of args
 	unquotedString, errUnquot := strconv.Unquote((`"` + args[0] + `"`))
