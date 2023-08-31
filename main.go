@@ -39,6 +39,10 @@ func main() {
 	mapOfSymbols, err := functions.MakeSymbolsMapFromFile(args[1] + ".txt")
 	functions.CheckErrorAndFatal(err)
 
+	mapOfSymbolsVewrtical := functions.GetSymbolsMapVerticalRepresentation(mapOfSymbols)
+	fmt.Println("mapOfSymbolsVewrtical")
+	fmt.Println(mapOfSymbolsVewrtical) // for debug
+
 	// get string from args wich will be converted to ascii-art, proceded string is the first element of args
 	unquotedString, errUnquot := strconv.Unquote((`"` + args[0] + `"`))
 	functions.CheckErrorAndFatal(errUnquot)

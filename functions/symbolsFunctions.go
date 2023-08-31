@@ -242,3 +242,18 @@ func CheckErrorAndFatal(err error) {
 		log.Fatal(err)
 	}
 }
+
+func GetSymbolsMapVerticalRepresentation(mapOfSymbols map[rune][]string) map[rune][]string {
+	var result = make(map[rune][]string)
+	var verticalRow string
+	var currentSymbol []string
+
+	for symbol, symbolRepresentation := range mapOfSymbols {
+		for _, row := range symbolRepresentation {
+			verticalRow += string(row[0])
+		}
+		currentSymbol = append(currentSymbol, verticalRow)
+		result[symbol] = currentSymbol
+	}
+	return result
+}
