@@ -245,19 +245,26 @@ func CheckErrorAndFatal(err error) {
 
 func GetSymbolsMapVerticalRepresentation(mapOfSymbols map[rune][]string) map[rune][]string {
 	var result = make(map[rune][]string)
-	var verticalRow string
-	var currentSymbol []string
 
 	for symbol, symbolRepresentation := range mapOfSymbols {
-		for i := 0; i < len(symbolRepresentation[0]); i++ {
-			for _, row := range symbolRepresentation {
-				verticalRow += string(row[i])
-			}
-			currentSymbol = append(currentSymbol, verticalRow)
-			verticalRow = ""
-		}
-		result[symbol] = currentSymbol
-		currentSymbol = nil
+		verticalRows := generateVerticalRepresentation(symbolRepresentation)
+		result[symbol] = verticalRows
 	}
+
 	return result
+}
+
+func generateVerticalRepresentation(lines []string) []string {
+	var verticalRow string
+	var newRows []string
+
+	for i := 0; i < len(lines[0]); i++ {
+		for _, row := range lines {
+			verticalRow += string(row[i])
+		}
+		newRows = append(newRows, verticalRow)
+		verticalRow = ""
+	}
+
+	return newRows
 }
