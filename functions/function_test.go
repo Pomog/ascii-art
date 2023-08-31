@@ -71,3 +71,15 @@ func TestGetSymbolsMapVerticalRepresentation(t *testing.T) {
 	}
 	runTest(t, GetSymbolsMapVerticalRepresentation, test)
 }
+
+func TestGenerateVerticalRepresentation(t *testing.T) {
+	test := []struct {
+		input    interface{}
+		expected interface{}
+	}{
+		{[]string{"a1", "b2", "c3"}, []string{"abc", "123"}},
+		{[]string{"a12", "b23", "c34"}, []string{"abc", "123", "234"}},
+		{[]string{"a147", "b258", "c369"}, []string{"abc", "123", "456", "789"}},
+	}
+	runTest(t, generateVerticalRepresentation, test)
+}
