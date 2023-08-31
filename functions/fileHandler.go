@@ -66,6 +66,11 @@ func WriteToTxtFile(fileName string, mapOfSymbols map[rune][]string, inputString
 	return nil
 }
 
+/*
+ReadFromTxtFileVertical reads text data from a file, generates a vertical representation,
+returns a slice of strings representing the vertical layout of the data.
+!!!all lines must be of the same length!!!
+*/
 func ReadFromTxtFileVertical(fileName string) []string {
 	file, errRead := os.Open(fileName)
 	CheckErrorAndFatal(errRead)
