@@ -268,3 +268,52 @@ func generateVerticalRepresentation(lines []string) []string {
 
 	return newRows
 }
+
+func GetStringFromASCIIArt(mapOfSymbols map[rune][]string) string {
+	asciiArtVetticalSlice := ReadFromTxtFileVertical("result.txt")
+	var resultingString string = ""
+
+	mapOfSymbolsVewrtical := GetSymbolsMapVerticalRepresentation(mapOfSymbols)
+
+	for len(asciiArtVetticalSlice) > 0 {
+		foundMatch := false
+
+		for symbol, symbolRepresentation := range mapOfSymbolsVewrtical {
+			symbolRepresentationLength := len(symbolRepresentation)
+
+			if len(asciiArtVetticalSlice) >= symbolRepresentationLength && slicesAreEqual(asciiArtVetticalSlice[:symbolRepresentationLength], symbolRepresentation) {
+				resultingString += string(symbol)
+				asciiArtVetticalSlice = asciiArtVetticalSlice[symbolRepresentationLength:]
+				foundMatch = true
+				break // Exit the inner loop when a match is found
+			}
+		}
+
+		if !foundMatch {
+			if len(asciiArtVetticalSlice) > 0 {
+				// If no match was found in this iteration and asciiArtVetticalSlice is not empty, remove the first element
+				asciiArtVetticalSlice = asciiArtVetticalSlice[1:]
+			} else {
+				break // Exit the outer loop when asciiArtVetticalSlice is empty
+			}
+		}
+	}
+
+	return resultingString
+}
+
+func slicesAreEqual(slice1, slice2 []string) bool {
+	// Check if slices have the same length
+	if len(slice1) != len(slice2) {
+		return false
+	}
+
+	// Compare each element of the slices
+	for i := 0; i < len(slice1); i++ {
+		if slice1[i] != slice2[i] {
+			return false
+		}
+	}
+
+	return true
+}

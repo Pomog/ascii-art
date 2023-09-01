@@ -36,16 +36,11 @@ func main() {
 	mapOfSymbols, err := functions.MakeSymbolsMapFromFile(args[1] + ".txt")
 	functions.CheckErrorAndFatal(err)
 
-	// get map of symbols from file, where key is a symbol and value is a slice of strings wich represents the symbol VERTICALLY
-	mapOfSymbolsVewrtical := functions.GetSymbolsMapVerticalRepresentation(mapOfSymbols)
-	fmt.Println(mapOfSymbolsVewrtical['\'']) // for debug
-
-	testVert := functions.ReadFromTxtFileVertical("result.txt")
-	fmt.Println("testVert") // for debug
-	fmt.Println(testVert)   // for debug
+	reversString := functions.GetStringFromASCIIArt(mapOfSymbols)
+	fmt.Printf("\nreversString: %s\n", reversString)
 
 	// get string from args wich will be converted to ascii-art, proceded string is the first element of args
-	unquotedString, errUnquot := strconv.Unquote(("'" + args[0] + "'"))
+	unquotedString, errUnquot := strconv.Unquote(("\"" + args[0] + "\""))
 	functions.CheckErrorAndFatal(errUnquot)
 
 	// obtain and combine all ascii-art symbols into the one slice of strings by layers to wokr with hole string
