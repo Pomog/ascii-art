@@ -270,29 +270,29 @@ func generateVerticalRepresentation(lines []string) []string {
 }
 
 func GetStringFromASCIIArt(mapOfSymbols map[rune][]string) string {
-	asciiArtVetticalSlice := ReadFromTxtFileVertical("result.txt")
+	asciiArtVerticalSlice := ReadFromTxtFileVertical("result.txt")
 	var resultingString string = ""
 
 	mapOfSymbolsVewrtical := GetSymbolsMapVerticalRepresentation(mapOfSymbols)
 
-	for len(asciiArtVetticalSlice) > 0 {
+	for len(asciiArtVerticalSlice) > 0 {
 		foundMatch := false
 
 		for symbol, symbolRepresentation := range mapOfSymbolsVewrtical {
 			symbolRepresentationLength := len(symbolRepresentation)
 
-			if len(asciiArtVetticalSlice) >= symbolRepresentationLength && slicesAreEqual(asciiArtVetticalSlice[:symbolRepresentationLength], symbolRepresentation) {
+			if len(asciiArtVerticalSlice) >= symbolRepresentationLength && slicesAreEqual(asciiArtVerticalSlice[:symbolRepresentationLength], symbolRepresentation) {
 				resultingString += string(symbol)
-				asciiArtVetticalSlice = asciiArtVetticalSlice[symbolRepresentationLength:]
+				asciiArtVerticalSlice = asciiArtVerticalSlice[symbolRepresentationLength:]
 				foundMatch = true
 				break // Exit the inner loop when a match is found
 			}
 		}
 
 		if !foundMatch {
-			if len(asciiArtVetticalSlice) > 0 {
+			if len(asciiArtVerticalSlice) > 0 {
 				// If no match was found in this iteration and asciiArtVetticalSlice is not empty, remove the first element
-				asciiArtVetticalSlice = asciiArtVetticalSlice[1:]
+				asciiArtVerticalSlice = asciiArtVerticalSlice[1:]
 			} else {
 				break // Exit the outer loop when asciiArtVetticalSlice is empty
 			}
@@ -300,6 +300,29 @@ func GetStringFromASCIIArt(mapOfSymbols map[rune][]string) string {
 	}
 
 	return resultingString
+}
+
+func GetStringFromASCIIArtRecursive(mapOfSymbolsVewrtical map[rune][]string, asciiArtVerticalSlice []string) string {
+	// Base case: if asciiArtVetticalSlice is empty, return an empty string
+	if len(asciiArtVerticalSlice) == 0 {
+		return ""
+	}
+
+	for symbol, symbolRepresentation := range mapOfSymbolsVewrtical {
+		symbolRepresentationLength := len(symbolRepresentation)
+
+		if len(asciiArtVerticalSlice) >= symbolRepresentationLength && slicesAreEqual(asciiArtVerticalSlice[:symbolRepresentationLength], symbolRepresentation) {
+			// If a match is found, append the symbol and recursively process the rest of the ASCII art
+			return string(symbol) + GetStringFromASCIIArtRecursive(mapOfSymbolsVewrtical, asciiArtVerticalSlice[symbolRepresentationLength:])
+		}
+	}
+
+	// If no match was found for the current slice, remove the first element and recursively process the rest
+	if len(asciiArtVerticalSlice) > 0 {
+		return GetStringFromASCIIArtRecursive(mapOfSymbolsVewrtical, asciiArtVerticalSlice[1:])
+	}
+
+	return ""
 }
 
 func slicesAreEqual(slice1, slice2 []string) bool {

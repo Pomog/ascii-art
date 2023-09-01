@@ -39,6 +39,9 @@ func main() {
 	reversString := functions.GetStringFromASCIIArt(mapOfSymbols)
 	fmt.Printf("\nreversString: %s\n", reversString)
 
+	reversStringRecursive := functions.GetStringFromASCIIArtRecursive(functions.GetSymbolsMapVerticalRepresentation(mapOfSymbols), functions.ReadFromTxtFileVertical("result.txt"))
+	fmt.Printf("\nreversStringRecursive: %s\n", reversStringRecursive)
+
 	// get string from args wich will be converted to ascii-art, proceded string is the first element of args
 	unquotedString, errUnquot := strconv.Unquote(("\"" + args[0] + "\""))
 	functions.CheckErrorAndFatal(errUnquot)
