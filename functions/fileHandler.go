@@ -5,8 +5,9 @@ import (
 	"os"
 )
 
+var strtRune = 32
+
 const (
-	strtRune     = 32
 	symbolHeight = 8
 )
 
