@@ -5,8 +5,10 @@ import (
 	"os"
 )
 
-var strtRune = 32
-var symbolHeight = 8
+const (
+	strtRune     = 32
+	symbolHeight = 8
+)
 
 func MakeSymbolsMapFromFile(fileName string) (map[rune][]string, error) {
 	file, errRead := os.Open(fileName)
@@ -69,6 +71,7 @@ func WriteToTxtFile(fileName string, mapOfSymbols map[rune][]string, inputString
 /*
 ReadFromTxtFileVertical reads text data from a file, generates a vertical representation,
 returns a slice of strings representing the vertical layout of the data.
+!!! ONLY FIRST ASCII ART LINE IS READ !!!
 !!!all lines must be of the same length!!!
 */
 func ReadFromTxtFileVertical(fileName string) []string {
@@ -77,15 +80,15 @@ func ReadFromTxtFileVertical(fileName string) []string {
 	defer file.Close()
 
 	fileScanner := bufio.NewScanner(file)
-	lines := getLines(fileScanner)
+	lines := getLines(fileScanner, symbolHeight)
 
 	return generateVerticalRepresentation(lines)
 }
 
-func getLines(fileScanner *bufio.Scanner) []string {
+func getLines(fileScanner *bufio.Scanner, numLines int) []string {
 	var result []string
 
-	for fileScanner.Scan() {
+	for i := 0; i < numLines && fileScanner.Scan(); i++ {
 		line := fileScanner.Text()
 		result = append(result, line)
 	}
