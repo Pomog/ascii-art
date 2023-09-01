@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
 	"strings"
 
 	"github.com/Pomog/ascii-art/functions"
@@ -36,15 +35,14 @@ func main() {
 	mapOfSymbols, err := functions.MakeSymbolsMapFromFile(args[1] + ".txt")
 	functions.CheckErrorAndFatal(err)
 
-	reversString := functions.GetStringFromASCIIArt(mapOfSymbols)
-	fmt.Printf("\nreversString: %s\n", reversString)
+	// reversString := functions.GetStringFromASCIIArt(mapOfSymbols)
+	// fmt.Printf("\nreversString: %s\n", reversString)
 
-	reversStringRecursive := functions.GetStringFromASCIIArtRecursive(functions.GetSymbolsMapVerticalRepresentation(mapOfSymbols), functions.ReadFromTxtFileVertical("result.txt"))
-	fmt.Printf("\nreversStringRecursive: %s\n", reversStringRecursive)
+	// reversStringRecursive := functions.GetStringFromASCIIArtRecursive(functions.GetSymbolsMapVerticalRepresentation(mapOfSymbols), functions.ReadFromTxtFileVertical("result.txt"))
+	// fmt.Printf("\nreversStringRecursive: %s\n", reversStringRecursive)
 
 	// get string from args wich will be converted to ascii-art, proceded string is the first element of args
-	unquotedString, errUnquot := strconv.Unquote(("\"" + args[0] + "\""))
-	functions.CheckErrorAndFatal(errUnquot)
+	unquotedString := strings.ReplaceAll(args[0], "\\n", "\n")
 
 	// obtain and combine all ascii-art symbols into the one slice of strings by layers to wokr with hole string
 	result := functions.GetProcessedSlice(mapOfSymbols, unquotedString, lettersToBeColored, colorFlag, alignFlag)
