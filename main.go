@@ -39,9 +39,10 @@ func main() {
 	}
 
 	// parsing and removing lettersToBeColored from args
-	if colorFlagPresent {
+	if colorFlagPresent && len(args) == 3 {
 		lettersToBeColored = args[0]
 		args = args[1:]
+		fmt.Printf("Letters to be colored: %s\n", lettersToBeColored)
 	}
 
 	// get map of symbols from file, where key is a symbol and value is a slice of strings wich represents the symbol
@@ -82,7 +83,7 @@ func processFlags(args []string) (string, string, string) {
 		log.Fatal(alignErr)
 	}
 
-	if !fileIsPresent(reverseFlag) {
+	if reverseFlag != "" && !fileIsPresent(reverseFlag) {
 		reverseErr := "Error: File " + reverseFlag + " is not found\n"
 		log.Fatal(reverseErr)
 	}

@@ -156,7 +156,7 @@ func composeResultingSlice(mapOfSymbols map[rune][]string, row, lettersToBeColor
 processSymbolsRow returns a string which represents a single row of the symbol.
 */
 func processSymbolsRow(symbol rune, mapOfSymbols map[rune][]string, lettersToBeColored, colorFlag string, i int) string {
-	if lettersToBeColored != "" && strings.Contains(lettersToBeColored, string(symbol)) {
+	if lettersToBeColored == "" || strings.Contains(lettersToBeColored, string(symbol)) {
 		return colorize(mapOfSymbols[symbol][i], colorFlag)
 	}
 	return mapOfSymbols[symbol][i]
