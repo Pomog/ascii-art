@@ -11,6 +11,7 @@ import (
 )
 
 var resultsFileName = "result.txt"
+var fileNameWithSymbolsDefault = "standard.txt"
 var lettersToBeColored string = ""
 var validColors = []string{"red", "orange", "yellow", "green", "blue", "indigo", "violet", "white"}
 var validAligns = []string{"left", "center", "right", "justify"}
@@ -18,12 +19,24 @@ var validAligns = []string{"left", "center", "right", "justify"}
 func main() {
 	args := os.Args[1:]
 
-	colorFlagPresent := isColorFlagPresent(args)
+	// this var needed to help parse lettersToBeColored
+	colorFlagPresent := isFlagPresent(args, "-color")
+
+	// this var needed to handle case when -reverse flag is present, program will print reversed string and exit
+	reverseFlagPresent := isFlagPresent(args, "-reverse")
 
 	// Parse color and align flag as strings and check if they are valid
-	colorFlag, alignFlag := processFlags(args)
+	colorFlag, alignFlag, reverseFlag := processFlags(args)
 	// remove flags from args
 	args = flag.Args()
+
+	// if -reverse flag is present, then reverse the string print it and exit
+	if reverseFlagPresent {
+		var reversStringFromAsciiArt string = parseAsciiArtFile(fileNameWithSymbolsDefault, reverseFlag)
+
+		fmt.Printf("%s\n", reversStringFromAsciiArt)
+		os.Exit(0)
+	}
 
 	// parsing and removing lettersToBeColored from args
 	if colorFlagPresent {
@@ -34,12 +47,6 @@ func main() {
 	// get map of symbols from file, where key is a symbol and value is a slice of strings wich represents the symbol
 	mapOfSymbols, err := functions.MakeSymbolsMapFromFile(args[1] + ".txt")
 	functions.CheckErrorAndFatal(err)
-
-	reversString := functions.GetStringFromASCIIArt(mapOfSymbols)
-	fmt.Printf("\nreversString: %s\n", reversString)
-
-	reversStringRecursive := functions.GetStringFromASCIIArtRecursive(functions.GetSymbolsMapVerticalRepresentation(mapOfSymbols), functions.ReadFromTxtFileVertical("result.txt"))
-	fmt.Printf("\nreversStringRecursive: %s\n", reversStringRecursive)
 
 	// get string from args wich will be converted to ascii-art, proceded string is the first element of args
 	unquotedString := strings.ReplaceAll(args[0], "\\n", "\n")
@@ -62,8 +69,8 @@ func main() {
 if there is no -color flag, then the color is white by default
 if there is no -align flag, then the align is left by default
 */
-func processFlags(args []string) (string, string) {
-	colorFlag, alignFlag := parseFlags()
+func processFlags(args []string) (string, string, string) {
+	colorFlag, alignFlag, reverseFlag := parseFlags()
 
 	if !isValueValid(colorFlag, validColors) {
 		colorErr := "Error: wrong color value\nExpected: one of the colors: red, orange, yellow, green, blue, indigo, violet\nGot: " + colorFlag
@@ -75,19 +82,40 @@ func processFlags(args []string) (string, string) {
 		log.Fatal(alignErr)
 	}
 
-	return colorFlag, alignFlag
+	if !fileIsPresent(reverseFlag) {
+		reverseErr := "Error: File " + reverseFlag + " is not found\n"
+		log.Fatal(reverseErr)
+	}
+
+	return colorFlag, alignFlag, reverseFlag
 }
 
 /*
 parseFlags parses the flags and returns the color and align flags as strings.
 */
-func parseFlags() (string, string) {
-	var colorFlag, alignFlag string
+func parseFlags() (string, string, string) {
+	var colorFlag, alignFlag, reverseFlag string
 
 	flag.StringVar(&colorFlag, "color", "white", "Specify a color")
 	flag.StringVar(&alignFlag, "align", "left", "Specify alignment (left, center, right, justify)")
+	flag.StringVar(&reverseFlag, "reverse", "", "Reverse the string")
 	flag.Parse()
-	return colorFlag, alignFlag
+	return colorFlag, alignFlag, reverseFlag
+}
+
+/*
+returns a string that is the result of reversing ASCII ART.
+input: fileNameWithSymbols - the name of the file to read ASCII ART symbols representation from
+input: fileNameToRead - name of the file to read ASCII ART from
+*/
+func parseAsciiArtFile(fileNameWithSymbols, fileNameToRead string) string {
+	mapOfSymbols, err := functions.MakeSymbolsMapFromFile(fileNameWithSymbols)
+	functions.CheckErrorAndFatal(err)
+
+	reversStringRecursive := functions.GetStringFromASCIIArtRecursive(
+		functions.GetSymbolsMapVerticalRepresentation(mapOfSymbols),
+		functions.ReadFromTxtFileVertical(fileNameToRead))
+	return reversStringRecursive
 }
 
 /*
@@ -102,9 +130,19 @@ func isValueValid(value string, allowedValues []string) bool {
 	return false
 }
 
-func isColorFlagPresent(args []string) bool {
+func fileIsPresent(fileName string) bool {
+	if _, err := os.Stat(fileName); os.IsNotExist(err) {
+		return false
+	}
+	return true
+}
+
+/*
+input: args, flag string "-flag"
+*/
+func isFlagPresent(args []string, flag string) bool {
 	for _, arg := range args {
-		if strings.Contains(arg, "-color") {
+		if strings.Contains(arg, flag) {
 			return true
 		}
 	}
