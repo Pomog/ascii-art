@@ -15,6 +15,7 @@ var fileNameWithSymbolsDefault = "standard.txt"
 var lettersToBeColored string = ""
 var validColors = []string{"red", "orange", "yellow", "green", "blue", "indigo", "violet", "white"}
 var validAligns = []string{"left", "center", "right", "justify"}
+var validAsciiArtSourse = []string{"standard", "shadow", "thinkertoy"}
 
 func main() {
 	args := os.Args[1:]
@@ -42,12 +43,12 @@ func main() {
 	if colorFlagPresent && len(args) == 3 {
 		lettersToBeColored = args[0]
 		args = args[1:]
-		fmt.Printf("Letters to be colored: %s\n", lettersToBeColored)
+	} else if !colorFlagPresent && len(args) == 3 {
+		log.Fatal("Error: wrong number of arguments\nFlag -color is not present but lettersToBeColored included")
 	}
 
 	// get map of symbols from file, where key is a symbol and value is a slice of strings wich represents the symbol
-	mapOfSymbols, err := functions.MakeSymbolsMapFromFile(args[1] + ".txt")
-	functions.CheckErrorAndFatal(err)
+	mapOfSymbols := getMapOfSymbols(args, validAsciiArtSourse)
 
 	// get string from args wich will be converted to ascii-art, proceded string is the first element of args
 	unquotedString := strings.ReplaceAll(args[0], "\\n", "\n")
@@ -105,9 +106,25 @@ func parseFlags() (string, string, string) {
 }
 
 /*
+getMapOfSymbols returns a map of symbols from the file.
+The usage must respect this format go run . [STRING] [BANNER]
+*/
+func getMapOfSymbols(args []string, validAsciiArtSourse []string) map[rune][]string {
+	if isValueValid(args[len(args)-1], validAsciiArtSourse) {
+		mapOfSymbols, err := functions.MakeSymbolsMapFromFile(args[1] + ".txt")
+		functions.CheckErrorAndFatal(err)
+		return mapOfSymbols
+	} else {
+		log.Fatal("Usage: go run . [STRING] [BANNER]\nEX: go run . \"something\" standard")
+		return nil
+	}
+}
+
+/*
 returns a string that is the result of reversing ASCII ART.
 input: fileNameWithSymbols - the name of the file to read ASCII ART symbols representation from
 input: fileNameToRead - name of the file to read ASCII ART from
+ONLY ONE ASCII ART SYMBOLS LINE IS SUPPORTED
 */
 func parseAsciiArtFile(fileNameWithSymbols, fileNameToRead string) string {
 	mapOfSymbols, err := functions.MakeSymbolsMapFromFile(fileNameWithSymbols)
