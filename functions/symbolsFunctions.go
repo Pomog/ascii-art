@@ -97,6 +97,65 @@ func CheckForNotAllowedSymbols(inputString string) bool {
 	return true
 }
 
+func Justify(inputString string, mapOfSymbols map[rune][]string) string {
+	terminalWidth, err := getTerminalWidth()
+	CheckErrorAndFatal(err)
+
+	//calculate number of words in inputString
+	numberOfWords := 1
+	for _, symbol := range inputString {
+		if symbol == ' ' {
+			numberOfWords++
+		}
+	}
+
+	if numberOfWords < 2 {
+		return inputString
+	}
+
+	//calculate the number of symbols inputString without spaces
+	var numberOfSymbols int
+	for _, symbol := range inputString {
+		if symbol != ' ' {
+			numberOfSymbols++
+		}
+	}
+	//calculate the lenhth of ascii art string without spaces
+	var lengthOfAsciiArt int
+	for _, symbol := range inputString {
+		lengthOfAsciiArt += len(mapOfSymbols[symbol][0])
+	}
+
+	//calculate the number of spaces to add
+	numberOfSpaces := terminalWidth - lengthOfAsciiArt
+
+	//calculate the number of spaces to add between words
+	numberOfSpacesBetweenWords := numberOfSpaces / ((numberOfWords - 1) * (len(mapOfSymbols[' '][0]))) // TODO: check if numberOfWords - 1 == 0
+
+	fmt.Printf("numberOfSpaces: %v\n", numberOfSpaces)
+	fmt.Printf("numberOfSpacesBetweenWords: %v\n", numberOfSpacesBetweenWords)
+	fmt.Printf("numberOfWords: %v\n", numberOfWords)
+
+	additionalSpace := numberOfSpacesBetweenWords % ((numberOfWords - 1) * (len(mapOfSymbols[' '][0]))) // additionalSpace - number of spaces to add between words
+	fmt.Printf("additionalSpace: %v\n", additionalSpace)
+
+	//add spaces between words
+	var justifiedString string
+	for _, symbol := range inputString {
+		if symbol == ' ' && numberOfSpacesBetweenWords > 0 {
+			justifiedString += strings.Repeat(" ", numberOfSpacesBetweenWords)
+			if additionalSpace > 0 {
+				justifiedString += " "
+				additionalSpace--
+			}
+		} else {
+			justifiedString += string(symbol)
+		}
+	}
+
+	return justifiedString
+}
+
 /*
 splitStringByNewline splits the input string by the newline symbol and returns a slice of strings.
 If the input string does not contain the newline symbol, the string is added to the slicedString

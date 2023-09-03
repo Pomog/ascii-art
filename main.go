@@ -62,6 +62,12 @@ func main() {
 	errWrite := functions.WriteToTxtFile(resultsFileName, mapOfSymbols, unquotedString)
 	functions.CheckErrorAndFatal(errWrite)
 
+	if alignFlag == "justify" {
+		justifiedString := functions.Justify(unquotedString, mapOfSymbols)
+		result := functions.GetProcessedSlice(mapOfSymbols, justifiedString, lettersToBeColored, colorFlag, "left")
+		functions.PrintResult(result)
+	}
+
 	farewell(resultsFileName)
 }
 
