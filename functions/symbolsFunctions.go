@@ -139,7 +139,7 @@ func Justify(inputString string, mapOfSymbols map[rune][]string) string {
 	additionalSpace := numberOfSpacesBetweenWords % ((numberOfWords - 1) * (len(mapOfSymbols[' '][0]))) // additionalSpace - number of spaces to add between words
 	fmt.Printf("additionalSpace: %v\n", additionalSpace)
 
-	//add spaces between words
+	//add spaces equivalent to ASCII ART between words
 	var justifiedString string
 	for _, symbol := range inputString {
 		if symbol == ' ' && numberOfSpacesBetweenWords > 0 {
