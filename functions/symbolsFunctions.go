@@ -97,54 +97,57 @@ func CheckForNotAllowedSymbols(inputString string) bool {
 	return true
 }
 
+func calculateNumberOfWordsAndSymbols(inputString string) (numberOfWords int, numberOfSymbols int) {
+	numberOfWords = 0
+	for _, word := range strings.Fields(inputString) {
+		numberOfWords++
+		numberOfSymbols += len(word)
+	}
+	return numberOfWords, numberOfSymbols
+}
+
 func Justify(inputString string, mapOfSymbols map[rune][]string) string {
 	terminalWidth, err := getTerminalWidth()
 	CheckErrorAndFatal(err)
 
-	//calculate number of words in inputString
-	numberOfWords := 1
-	for _, symbol := range inputString {
-		if symbol == ' ' {
-			numberOfWords++
-		}
-	}
+	//calculate number of words and symbols exluding spaces in inputString
+	numberOfWords, _ := calculateNumberOfWordsAndSymbols(inputString)
+	fmt.Printf("numberOfWords: %v\n\n", numberOfWords)
 
-	if numberOfWords < 2 {
+	if numberOfWords <= 2 {
 		return inputString
 	}
+	var lengthOfAsciiArt int
 
-	//calculate the number of symbols inputString without spaces
-	var numberOfSymbols int
+	//calculate the lenhth of ascii art string
 	for _, symbol := range inputString {
 		if symbol != ' ' {
-			numberOfSymbols++
+			lengthOfAsciiArt += len(mapOfSymbols[symbol][0])
 		}
-	}
-	//calculate the lenhth of ascii art string without spaces
-	var lengthOfAsciiArt int
-	for _, symbol := range inputString {
-		lengthOfAsciiArt += len(mapOfSymbols[symbol][0])
 	}
 
 	//calculate the number of spaces to add
-	numberOfSpaces := terminalWidth - lengthOfAsciiArt
+	numberOfSpaces := (terminalWidth - lengthOfAsciiArt) / (len(mapOfSymbols[' '][0]))
+	fmt.Printf("numberOfSpaces: %v\n\n", numberOfSpaces)
 
 	//calculate the number of spaces to add between words
-	numberOfSpacesBetweenWords := numberOfSpaces / ((numberOfWords - 1) * (len(mapOfSymbols[' '][0]))) // TODO: check if numberOfWords - 1 == 0
+	numberOfSpacesBetweenWords := numberOfSpaces / (numberOfWords - 1)
+	fmt.Printf("numberOfSpacesBetweenWords: %v\n\n", numberOfSpacesBetweenWords)
 
-	fmt.Printf("numberOfSpaces: %v\n", numberOfSpaces)
-	fmt.Printf("numberOfSpacesBetweenWords: %v\n", numberOfSpacesBetweenWords)
-	fmt.Printf("numberOfWords: %v\n", numberOfWords)
+	additionalSpace := numberOfSpaces - (numberOfSpacesBetweenWords * (numberOfWords - 1)) // additionalSpace - number of spaces to add between words
+	fmt.Printf("additionalSpace: %v\n\n", additionalSpace)
 
-	additionalSpace := numberOfSpacesBetweenWords % ((numberOfWords - 1) * (len(mapOfSymbols[' '][0]))) // additionalSpace - number of spaces to add between words
-	fmt.Printf("additionalSpace: %v\n", additionalSpace)
+	resultLength := lengthOfAsciiArt + numberOfSpacesBetweenWords*(numberOfWords-1)*6 + additionalSpace*6
+	fmt.Printf("resultLength: %v\n\n", resultLength)
+	fmt.Printf("terminalWidth: %v\n\n", terminalWidth)
 
+	justifiedString := ""
 	//add spaces equivalent to ASCII ART between words
-	var justifiedString string
 	for _, symbol := range inputString {
-		if symbol == ' ' && numberOfSpacesBetweenWords > 0 {
+		if symbol == ' ' {
 			justifiedString += strings.Repeat(" ", numberOfSpacesBetweenWords)
 			if additionalSpace > 0 {
+				fmt.Println("additionalSpace added")
 				justifiedString += " "
 				additionalSpace--
 			}
@@ -153,7 +156,48 @@ func Justify(inputString string, mapOfSymbols map[rune][]string) string {
 		}
 	}
 
+	for i, symbol := range justifiedString {
+		if symbol == ' ' {
+			fmt.Print(" ")
+			fmt.Print(i)
+			fmt.Print(" ")
+		} else {
+			fmt.Print(string(symbol))
+		}
+	}
+	fmt.Println(" END")
+
 	return justifiedString
+}
+
+func getTerminalWidth() (int, error) {
+	// // uintptr is an integer type that is large enough to hold the bit pattern of any pointer.
+	fd := uintptr(syscall.Stdout) //represents the file descriptor constant for the standard output stream
+	ws := &winsize{}              //This instance will be used to store the retrieved terminal window size information.
+
+	//Making a System Call (syscall.Syscall)
+	/*
+		syscall.SYS_IOCTL: This is a constant representing the IOCTL system call, which is used for device control operations.
+		fd: The file descriptor for standard output.
+		uintptr(syscall.TIOCGWINSZ): A constant representing the TIOCGWINSZ operation code, used to retrieve terminal window size information.
+		uintptr(unsafe.Pointer(ws)): A pointer to the winsize struct instance, cast to uintptr using unsafe.Pointer.
+	*/
+	_, _, err := syscall.Syscall(syscall.SYS_IOCTL, fd, uintptr(syscall.TIOCGWINSZ), uintptr(unsafe.Pointer(ws)))
+	if err != 0 {
+		return 0, err
+	}
+
+	return int(ws.Col), nil
+}
+
+/*
+winsize is a struct that contains the terminal width and height.
+*/
+type winsize struct {
+	Row    uint16 //unsigned 16-bit integer
+	Col    uint16
+	Xpixel uint16
+	Ypixel uint16
 }
 
 /*
@@ -253,36 +297,6 @@ func PrintResult(result []string) {
 	for _, row := range result {
 		fmt.Println(row)
 	}
-}
-
-func getTerminalWidth() (int, error) {
-	// // uintptr is an integer type that is large enough to hold the bit pattern of any pointer.
-	fd := uintptr(syscall.Stdout) //represents the file descriptor constant for the standard output stream
-	ws := &winsize{}              //This instance will be used to store the retrieved terminal window size information.
-
-	//Making a System Call (syscall.Syscall)
-	/*
-		syscall.SYS_IOCTL: This is a constant representing the IOCTL system call, which is used for device control operations.
-		fd: The file descriptor for standard output.
-		uintptr(syscall.TIOCGWINSZ): A constant representing the TIOCGWINSZ operation code, used to retrieve terminal window size information.
-		uintptr(unsafe.Pointer(ws)): A pointer to the winsize struct instance, cast to uintptr using unsafe.Pointer.
-	*/
-	_, _, err := syscall.Syscall(syscall.SYS_IOCTL, fd, uintptr(syscall.TIOCGWINSZ), uintptr(unsafe.Pointer(ws)))
-	if err != 0 {
-		return 0, err
-	}
-
-	return int(ws.Col), nil
-}
-
-/*
-winsize is a struct that contains the terminal width and height.
-*/
-type winsize struct {
-	Row    uint16 //unsigned 16-bit integer
-	Col    uint16
-	Xpixel uint16
-	Ypixel uint16
 }
 
 /*
