@@ -97,57 +97,27 @@ func CheckForNotAllowedSymbols(inputString string) bool {
 	return true
 }
 
-func calculateNumberOfWordsAndSymbols(inputString string) (numberOfWords int, numberOfSymbols int) {
-	numberOfWords = 0
-	for _, word := range strings.Fields(inputString) {
-		numberOfWords++
-		numberOfSymbols += len(word)
-	}
-	return numberOfWords, numberOfSymbols
-}
-
 func Justify(inputString string, mapOfSymbols map[rune][]string) string {
 	terminalWidth, err := getTerminalWidth()
 	CheckErrorAndFatal(err)
 
-	//calculate number of words and symbols exluding spaces in inputString
-	numberOfWords, _ := calculateNumberOfWordsAndSymbols(inputString)
-	fmt.Printf("numberOfWords: %v\n\n", numberOfWords)
+	numberOfWords := calculateNumberOfWords(inputString)
 
 	if numberOfWords <= 2 {
 		return inputString
 	}
-	var lengthOfAsciiArt int
 
-	//calculate the lenhth of ascii art string
-	for _, symbol := range inputString {
-		if symbol != ' ' {
-			lengthOfAsciiArt += len(mapOfSymbols[symbol][0])
-		}
-	}
-
-	//calculate the number of spaces to add
+	lengthOfAsciiArt := getLengthOfAsciiArt(inputString, mapOfSymbols)
 	numberOfSpaces := (terminalWidth - lengthOfAsciiArt) / (len(mapOfSymbols[' '][0]))
-	fmt.Printf("numberOfSpaces: %v\n\n", numberOfSpaces)
-
-	//calculate the number of spaces to add between words
 	numberOfSpacesBetweenWords := numberOfSpaces / (numberOfWords - 1)
-	fmt.Printf("numberOfSpacesBetweenWords: %v\n\n", numberOfSpacesBetweenWords)
-
 	additionalSpace := numberOfSpaces - (numberOfSpacesBetweenWords * (numberOfWords - 1)) // additionalSpace - number of spaces to add between words
-	fmt.Printf("additionalSpace: %v\n\n", additionalSpace)
-
-	resultLength := lengthOfAsciiArt + numberOfSpacesBetweenWords*(numberOfWords-1)*6 + additionalSpace*6
-	fmt.Printf("resultLength: %v\n\n", resultLength)
-	fmt.Printf("terminalWidth: %v\n\n", terminalWidth)
-
 	justifiedString := ""
+
 	//add spaces equivalent to ASCII ART between words
 	for _, symbol := range inputString {
 		if symbol == ' ' {
 			justifiedString += strings.Repeat(" ", numberOfSpacesBetweenWords)
 			if additionalSpace > 0 {
-				fmt.Println("additionalSpace added")
 				justifiedString += " "
 				additionalSpace--
 			}
@@ -156,18 +126,21 @@ func Justify(inputString string, mapOfSymbols map[rune][]string) string {
 		}
 	}
 
-	for i, symbol := range justifiedString {
-		if symbol == ' ' {
-			fmt.Print(" ")
-			fmt.Print(i)
-			fmt.Print(" ")
-		} else {
-			fmt.Print(string(symbol))
+	return justifiedString
+}
+
+func calculateNumberOfWords(inputString string) int {
+	return len(strings.Fields(inputString))
+}
+
+func getLengthOfAsciiArt(inputString string, mapOfSymbols map[rune][]string) int {
+	var lengthOfAsciiArt int
+	for _, symbol := range inputString {
+		if symbol != ' ' {
+			lengthOfAsciiArt += len(mapOfSymbols[symbol][0])
 		}
 	}
-	fmt.Println(" END")
-
-	return justifiedString
+	return lengthOfAsciiArt
 }
 
 func getTerminalWidth() (int, error) {
