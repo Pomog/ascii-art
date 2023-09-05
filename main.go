@@ -16,6 +16,8 @@ var lettersToBeColored string = ""
 var validColors = []string{"red", "orange", "yellow", "green", "blue", "indigo", "violet", "white"}
 var validAligns = []string{"left", "center", "right", "justify"}
 var validAsciiArtSourse = []string{"standard", "shadow", "thinkertoy"}
+var banner = "standard"
+var inputString = ""
 
 func main() {
 	args := os.Args[1:]
@@ -34,39 +36,60 @@ func main() {
 	// if -reverse flag is present, then reverse the string print it and exit
 	if reverseFlagPresent {
 		var reversStringFromAsciiArt string = parseAsciiArtFile(fileNameWithSymbolsDefault, reverseFlag)
-
 		fmt.Printf("%s\n", reversStringFromAsciiArt)
 		os.Exit(0)
 	}
 
-	// parsing and removing lettersToBeColored from args
-	if colorFlagPresent && len(args) == 3 {
+	if len(args) == 3 {
+		banner = args[2]
+		inputString = args[1]
 		lettersToBeColored = args[0]
-		args = args[1:]
-	} else if !colorFlagPresent && len(args) == 3 {
+		if !isValueValid(banner, validAsciiArtSourse) {
+			errorMessage := fmt.Sprintf("Error: wrong banner value\nExpected: one of the banners: %s\nGot: %s", validAsciiArtSourse, banner)
+			log.Fatal(errorMessage)
+		}
+	}
+
+	if len(args) == 2 {
+		if isValueValid(args[1], validAsciiArtSourse) {
+			banner = args[1]
+			inputString = args[0]
+		} else {
+			inputString = args[1]
+			lettersToBeColored = args[0]
+		}
+	}
+
+	if len(args) == 1 {
+		inputString = args[0]
+	}
+
+	// parsing and removing lettersToBeColored from args
+	if !colorFlagPresent && len(args) == 3 {
 		log.Fatal("Error: wrong number of arguments\nFlag -color is not present but lettersToBeColored included")
 	}
 
 	// get map of symbols from file, where key is a symbol and value is a slice of strings wich represents the symbol
-	mapOfSymbols := getMapOfSymbols(args, validAsciiArtSourse)
+	mapOfSymbols := getMapOfSymbols(banner)
 
 	// get string from args wich will be converted to ascii-art, proceded string is the first element of args
-	unquotedString := strings.ReplaceAll(args[0], "\\n", "\n")
+	unquotedString := strings.ReplaceAll(inputString, "\\n", "\n")
 
 	// obtain and combine all ascii-art symbols into the one slice of strings by layers to wokr with hole string
 	result := functions.GetProcessedSlice(mapOfSymbols, unquotedString, lettersToBeColored, colorFlag, alignFlag)
+
+	if alignFlag == "justify" {
+		justifiedString := functions.Justify(unquotedString, mapOfSymbols)
+		result := functions.GetProcessedSlice(mapOfSymbols, justifiedString, lettersToBeColored, colorFlag, "left")
+		functions.PrintResult(result)
+		os.Exit(0)
+	}
 
 	functions.PrintResult(result)
 
 	// write string ascii art to the file result.txt. The color flag is not used in the file, lettersToBeColored not taken into account.
 	errWrite := functions.WriteToTxtFile(resultsFileName, mapOfSymbols, unquotedString)
 	functions.CheckErrorAndFatal(errWrite)
-
-	if alignFlag == "justify" {
-		justifiedString := functions.Justify(unquotedString, mapOfSymbols)
-		result := functions.GetProcessedSlice(mapOfSymbols, justifiedString, lettersToBeColored, colorFlag, "left")
-		functions.PrintResult(result)
-	}
 
 	farewell(resultsFileName)
 }
@@ -115,15 +138,10 @@ func parseFlags() (string, string, string) {
 getMapOfSymbols returns a map of symbols from the file.
 The usage must respect this format go run . [STRING] [BANNER]
 */
-func getMapOfSymbols(args []string, validAsciiArtSourse []string) map[rune][]string {
-	if isValueValid(args[len(args)-1], validAsciiArtSourse) {
-		mapOfSymbols, err := functions.MakeSymbolsMapFromFile(args[1] + ".txt")
-		functions.CheckErrorAndFatal(err)
-		return mapOfSymbols
-	} else {
-		log.Fatal("Usage: go run . [STRING] [BANNER]\nEX: go run . \"something\" standard")
-		return nil
-	}
+func getMapOfSymbols(banner string) map[rune][]string {
+	mapOfSymbols, err := functions.MakeSymbolsMapFromFile(banner + ".txt")
+	functions.CheckErrorAndFatal(err)
+	return mapOfSymbols
 }
 
 /*
