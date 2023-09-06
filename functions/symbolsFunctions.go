@@ -273,6 +273,19 @@ func PrintResult(result []string) {
 }
 
 /*
+PrintResult prints the result slice line by line.
+input: string, map of ASCII ART symbols
+*/
+func PrintResultASCIIArt(input string, mapOfSymbols map[rune][]string) {
+	for row := 0; row < len(mapOfSymbols[' ']); row++ {
+		for _, symbol := range input {
+			fmt.Print(mapOfSymbols[symbol][row])
+		}
+		fmt.Println()
+	}
+}
+
+/*
 system calls to interact with the underlying operating system to obtain information about the terminal
 */
 func PrintTerminalWidth() {
