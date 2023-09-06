@@ -91,9 +91,9 @@ func main() {
 	errWrite := functions.WriteToTxtFile(resultsFileName, mapOfSymbols, unquotedString)
 	functions.CheckErrorAndFatal(errWrite)
 
-	//print with PrintResultASCIIArt
-	fmt.Println("\nprint with PrintResultASCIIArt")
-	functions.PrintResultASCIIArt(unquotedString, mapOfSymbols)
+	//print with PrintASCIIArt
+	fmt.Println("\nprint with PrintASCIIArt")
+	functions.PrintASCIIArtNoFlag(unquotedString, mapOfSymbols)
 
 	farewell(resultsFileName)
 }

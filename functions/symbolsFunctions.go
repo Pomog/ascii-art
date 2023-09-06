@@ -276,13 +276,25 @@ func PrintResult(result []string) {
 PrintResult prints the result slice line by line.
 input: string, map of ASCII ART symbols
 */
-func PrintResultASCIIArt(input string, mapOfSymbols map[rune][]string) {
-	for row := 0; row < len(mapOfSymbols[' ']); row++ {
-		for _, symbol := range input {
-			fmt.Print(mapOfSymbols[symbol][row])
-		}
-		fmt.Println()
+func PrintASCIIArtNoFlag(input string, mapOfSymbols map[rune][]string) {
+	for _, row := range GetASCIIARTSlice(input, mapOfSymbols) {
+		fmt.Println(row)
 	}
+}
+
+/*
+GetASCIIARTSlice returns a slice of strings which represents the input string as ASCII art.
+Horizontal representation, row 1 of all the first symbols, row 2 of the all the first symbols, etc.
+*/
+func GetASCIIARTSlice(input string, mapOfSymbols map[rune][]string) (result []string) {
+	for row := 0; row < len(mapOfSymbols[' ']); row++ {
+		var currentRow string
+		for _, symbol := range input {
+			currentRow += mapOfSymbols[symbol][row]
+		}
+		result = append(result, currentRow)
+	}
+	return
 }
 
 /*
