@@ -77,6 +77,7 @@ returns a slice of strings representing the vertical layout of the data.
 */
 func ReadFromTxtFileVertical(fileName string) []string {
 	file, errRead := os.Open(fileName)
+
 	CheckErrorAndFatal(errRead)
 	defer file.Close()
 

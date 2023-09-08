@@ -10,77 +10,44 @@ import (
 	"github.com/Pomog/ascii-art/functions"
 )
 
-var resultsFileName = "result.txt"
-var fileNameWithSymbolsDefault = "standard.txt"
-var lettersToBeColored string = ""
-var validColors = []string{"red", "orange", "yellow", "green", "blue", "indigo", "violet", "white"}
-var validAligns = []string{"left", "center", "right", "justify"}
-var validAsciiArtSourse = []string{"standard", "shadow", "thinkertoy"}
-var banner = "standard"
-var inputString = ""
+// Initialize the config struct
+var config = initConfig()
 
 func main() {
 	args := os.Args[1:]
 
-	// this var needed to help parse lettersToBeColored
-	colorFlagPresent := isFlagPresent(args, "-color")
-
 	// this var needed to handle case when -reverse flag is present, program will print reversed string and exit
-	reverseFlagPresent := isFlagPresent(args, "-reverse")
+	reverseFlagPresent := functions.IsFlagPresent(args, "-reverse")
 
 	// Parse color and align flag as strings and check if they are valid
-	colorFlag, alignFlag, reverseFlag := processFlags(args)
+	colorFlag, alignFlag, reverseFlag, errFlagsProcessing := processFlags(args)
+	if errFlagsProcessing != nil {
+		log.Fatal(errFlagsProcessing)
+	}
 	// remove flags from args
 	args = flag.Args()
 
-	// if -reverse flag is present, then reverse the string print it and exit
-	if reverseFlagPresent {
-		var reversStringFromAsciiArt string = parseAsciiArtFile(fileNameWithSymbolsDefault, reverseFlag)
-		fmt.Printf("%s\n", reversStringFromAsciiArt)
-		os.Exit(0)
-	}
+	//if -reverse flag is present, then reverse the string print it and exit
+	functions.HandleReverseFlag(reverseFlagPresent, config.FileNameWithSymbolsDefault, reverseFlag)
 
-	if len(args) == 3 {
-		banner = args[2]
-		inputString = args[1]
-		lettersToBeColored = args[0]
-		if !isValueValid(banner, validAsciiArtSourse) {
-			errorMessage := fmt.Sprintf("Error: wrong banner value\nExpected: one of the banners: %s\nGot: %s", validAsciiArtSourse, banner)
-			log.Fatal(errorMessage)
-		}
-	}
-
-	if len(args) == 2 {
-		if isValueValid(args[1], validAsciiArtSourse) {
-			banner = args[1]
-			inputString = args[0]
-		} else {
-			inputString = args[1]
-			lettersToBeColored = args[0]
-		}
-	}
-
-	if len(args) == 1 {
-		inputString = args[0]
-	}
-
-	// parsing and removing lettersToBeColored from args
-	if !colorFlagPresent && len(args) == 3 {
-		log.Fatal("Error: wrong number of arguments\nFlag -color is not present but lettersToBeColored included")
+	// parse and validate command-line arguments, after all flags are processed
+	err := parseArguments(args, &config)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	// get map of symbols from file, where key is a symbol and value is a slice of strings wich represents the symbol
-	mapOfSymbols := getMapOfSymbols(banner)
+	mapOfSymbols := getMapOfSymbols(config.Banner)
 
 	// get string from args wich will be converted to ascii-art, proceded string is the first element of args
-	unquotedString := strings.ReplaceAll(inputString, "\\n", "\n")
+	unquotedString := strings.ReplaceAll(config.InputString, "\\n", "\n")
 
 	// obtain and combine all ascii-art symbols into the one slice of strings by layers to wokr with hole string
-	result := functions.GetProcessedSlice(mapOfSymbols, unquotedString, lettersToBeColored, colorFlag, alignFlag)
+	result := functions.GetProcessedSlice(mapOfSymbols, unquotedString, config.LettersToBeColored, colorFlag, alignFlag)
 
 	if alignFlag == "justify" {
 		justifiedString := functions.Justify(unquotedString, mapOfSymbols)
-		result := functions.GetProcessedSlice(mapOfSymbols, justifiedString, lettersToBeColored, colorFlag, "left")
+		result := functions.GetProcessedSlice(mapOfSymbols, justifiedString, config.LettersToBeColored, colorFlag, "left")
 		functions.PrintResult(result)
 		os.Exit(0)
 	}
@@ -88,14 +55,10 @@ func main() {
 	functions.PrintResult(result)
 
 	// write string ascii art to the file result.txt. The color flag is not used in the file, lettersToBeColored not taken into account.
-	errWrite := functions.WriteToTxtFile(resultsFileName, mapOfSymbols, unquotedString)
+	errWrite := functions.WriteToTxtFile(config.ResultsFileName, mapOfSymbols, unquotedString)
 	functions.CheckErrorAndFatal(errWrite)
 
-	//print with PrintASCIIArt
-	fmt.Println("\nprint with PrintASCIIArt")
-	functions.PrintASCIIArtNoFlag(unquotedString, mapOfSymbols)
-
-	farewell(resultsFileName)
+	farewell(config.ResultsFileName)
 }
 
 //	>>>    Helper functions    <<<
@@ -104,15 +67,15 @@ func main() {
 if there is no -color flag, then the color is white by default
 if there is no -align flag, then the align is left by default
 */
-func processFlags(args []string) (string, string, string) {
+func processFlags(args []string) (string, string, string, error) {
 	colorFlag, alignFlag, reverseFlag := parseFlags()
 
-	if !isValueValid(colorFlag, validColors) {
+	if !isValueValid(colorFlag, config.ValidColors) {
 		colorErr := "Error: wrong color value\nExpected: one of the colors: red, orange, yellow, green, blue, indigo, violet\nGot: " + colorFlag
 		log.Fatal(colorErr)
 	}
 
-	if !isValueValid(alignFlag, validAligns) {
+	if !isValueValid(alignFlag, config.ValidAligns) {
 		alignErr := "Error: wrong align value\nExpected: one of the aligns: left, center, right, justify\nGot: " + alignFlag
 		log.Fatal(alignErr)
 	}
@@ -122,7 +85,7 @@ func processFlags(args []string) (string, string, string) {
 		log.Fatal(reverseErr)
 	}
 
-	return colorFlag, alignFlag, reverseFlag
+	return colorFlag, alignFlag, reverseFlag, nil
 }
 
 /*
@@ -133,8 +96,11 @@ func parseFlags() (string, string, string) {
 
 	flag.StringVar(&colorFlag, "color", "white", "Specify a color")
 	flag.StringVar(&alignFlag, "align", "left", "Specify alignment (left, center, right, justify)")
-	flag.StringVar(&reverseFlag, "reverse", "", "Reverse the string")
+	flag.StringVar(&reverseFlag, "reverse", "", "Reverse the ASCII ART from the file")
+
+	// Parse the command-line flags
 	flag.Parse()
+
 	return colorFlag, alignFlag, reverseFlag
 }
 
@@ -146,22 +112,6 @@ func getMapOfSymbols(banner string) map[rune][]string {
 	mapOfSymbols, err := functions.MakeSymbolsMapFromFile(banner + ".txt")
 	functions.CheckErrorAndFatal(err)
 	return mapOfSymbols
-}
-
-/*
-returns a string that is the result of reversing ASCII ART.
-input: fileNameWithSymbols - the name of the file to read ASCII ART symbols representation from
-input: fileNameToRead - name of the file to read ASCII ART from
-ONLY ONE ASCII ART SYMBOLS LINE IS SUPPORTED
-*/
-func parseAsciiArtFile(fileNameWithSymbols, fileNameToRead string) string {
-	mapOfSymbols, err := functions.MakeSymbolsMapFromFile(fileNameWithSymbols)
-	functions.CheckErrorAndFatal(err)
-
-	reversStringRecursive := functions.GetStringFromASCIIArtRecursive(
-		functions.GetSymbolsMapVerticalRepresentation(mapOfSymbols),
-		functions.ReadFromTxtFileVertical(fileNameToRead))
-	return reversStringRecursive
 }
 
 /*
@@ -184,21 +134,44 @@ func fileIsPresent(fileName string) bool {
 }
 
 /*
-input: args, flag string "-flag"
-*/
-func isFlagPresent(args []string, flag string) bool {
-	for _, arg := range args {
-		if strings.Contains(arg, flag) {
-			return true
-		}
-	}
-	return false
-}
-
-/*
 print farewell message
 */
 func farewell(resultFileName string) {
 	message := fmt.Sprintf("Finished. No errors. Thanks for using.\nThe result is in the file --> %s <--\nGoodbye!", resultFileName)
 	fmt.Println(message)
+}
+
+// parseArguments parses and validates command-line arguments and updates the config struct.
+func parseArguments(args []string, config *Config) error {
+	colorFlagPresent := functions.IsFlagPresent(args, "-color")
+
+	if len(args) > 3 || len(args) == 0 {
+		return fmt.Errorf("error: wrong number of arguments\nExpected: 1, 2 or 3 arguments\nGot: %v", len(args))
+	}
+
+	if !colorFlagPresent && len(args) == 3 {
+		return fmt.Errorf("error: wrong number of arguments\nFlag -color is not present but lettersToBeColored included")
+	}
+
+	switch len(args) {
+	case 3:
+		config.Banner = args[2]
+		config.InputString = args[1]
+		config.LettersToBeColored = args[0]
+		if !isValueValid(config.Banner, config.ValidAsciiArtSourse) {
+			return fmt.Errorf("error: wrong banner value\nExpected: one of the banners: %s\nGot: %s", config.ValidAsciiArtSourse, config.Banner)
+		}
+	case 2:
+		if isValueValid(args[1], config.ValidAsciiArtSourse) {
+			config.Banner = args[1]
+			config.InputString = args[0]
+		} else {
+			config.InputString = args[1]
+			config.LettersToBeColored = args[0]
+		}
+	case 1:
+		config.InputString = args[0]
+	}
+
+	return nil
 }
