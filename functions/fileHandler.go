@@ -22,6 +22,7 @@ func MakeSymbolsMapFromFile(fileName string) (map[rune][]string, error) {
 	return processSymbols(fileScanner)
 }
 
+// creates a map of symbols from the file, each symbol is represented by a slice of strings
 func processSymbols(fileScanner *bufio.Scanner) (map[rune][]string, error) {
 	symbols := make(map[rune][]string)
 	var currentSymbolName rune
@@ -61,7 +62,7 @@ func WriteToTxtFile(fileName string, mapOfSymbols map[rune][]string, inputString
 		fileWriter.WriteString(line + "\n")
 	}
 
-	// Flush any buffered data to the file
+	// Flush any buffered data to the underlying writer (standard output).
 	if errFlush := fileWriter.Flush(); errFlush != nil {
 		return errFlush
 	}

@@ -19,7 +19,7 @@ func main() {
 	// this var needed to handle case when -reverse flag is present, program will print reversed string and exit
 	reverseFlagPresent := functions.IsFlagPresent(args, "-reverse")
 
-	// Parse color and align flag as strings and check if they are valid
+	// Parse flags as strings and check if they are valid
 	colorFlag, alignFlag, reverseFlag, errFlagsProcessing := processFlags(args)
 	if errFlagsProcessing != nil {
 		log.Fatal(errFlagsProcessing)
@@ -27,10 +27,10 @@ func main() {
 	// remove flags from args
 	args = flag.Args()
 
-	//if -reverse flag is present, then reverse the string print it and exit
+	//if -reverse flag is present, then print resulting string it and exit
 	functions.HandleReverseFlag(reverseFlagPresent, config.FileNameWithSymbolsDefault, reverseFlag)
 
-	// parse and validate command-line arguments, after all flags are processed
+	// parse and validate command-line arguments, after all flags are processed, results stored in config struct
 	err := parseArguments(args, &config)
 	if err != nil {
 		log.Fatal(err)
@@ -45,6 +45,9 @@ func main() {
 	// obtain and combine all ascii-art symbols into the one slice of strings by layers to wokr with hole string
 	result := functions.GetProcessedSlice(mapOfSymbols, unquotedString, config.LettersToBeColored, colorFlag, alignFlag)
 
+	/*
+		TODO: need to be implemented using consistent logic
+	*/
 	if alignFlag == "justify" {
 		justifiedString := functions.Justify(unquotedString, mapOfSymbols)
 		result := functions.GetProcessedSlice(mapOfSymbols, justifiedString, config.LettersToBeColored, colorFlag, "left")
