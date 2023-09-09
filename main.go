@@ -8,10 +8,12 @@ import (
 	"strings"
 
 	"github.com/Pomog/ascii-art/functions"
+	"github.com/gin-gonic/gin"
 )
 
 // Initialize the config struct
 var config = initConfig()
+var AsciiArt []string
 
 func main() {
 	args := os.Args[1:]
@@ -60,6 +62,19 @@ func main() {
 	// write string ascii art to the file result.txt. The color flag is not used in the file, lettersToBeColored not taken into account.
 	errWrite := functions.WriteToTxtFile(config.ResultsFileName, mapOfSymbols, unquotedString)
 	functions.CheckErrorAndFatal(errWrite)
+
+	AsciiArt = functions.GetASCIIARTSlice(unquotedString, mapOfSymbols)
+
+	router := gin.Default()
+	// Serve static files from the "static" directory
+	router.Static("/static", "./static")
+	router.LoadHTMLGlob("templates/*.html")
+	router.GET("/ascii-art", GetMessages)
+	router.POST("/ascii-art", AddMessage)
+	router.GET("/asciiart", RenderStringsPage)
+	router.GET("/test", RenderTestPage)
+	router.GET("/test2", RenderTestPage2)
+	router.Run("localhost:9090")
 
 	farewell(config.ResultsFileName)
 }
