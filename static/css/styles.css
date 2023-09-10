@@ -1,0 +1,4 @@
+/* Add custom CSS to reduce line height */
+pre {
+    line-height: 0.6; /* Adjust this value as needed */
+}

@@ -1,23 +1,31 @@
-<!-- asciiart.html -->
-<!DOCTYPE html>
-<html>
-<head>
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+
     <title>ASCII Art Page</title>
+
+    <!-- Link to the external CSS file -->
+    <link rel="stylesheet" type="text/css" href="/static/css/styles.css">
+
 </head>
 <body>
-    <h1>ASCII Art Page</h1>
-    <style>
-        /* Add custom CSS to reduce line height */
-        pre {
-            line-height: 0.6; /* Adjust this value as needed */
-        }
-    </style>
+    <div class="container">
+         <h1>ASCII Art Page</h1>
+    </div>
+    <div class="container-fluid">
+        <pre>
+            {{range .Strings}}
+            {{.}}
+            {{end}}
+        </pre>
+     </div>
 
-    <!-- Use a <pre> element to preserve formatting -->
-    <pre>
-{{range .Strings}}
-{{.}}
-{{end}}
-    </pre>
+
 </body>
 </html>

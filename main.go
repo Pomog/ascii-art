@@ -69,11 +69,9 @@ func main() {
 	// Serve static files from the "static" directory
 	router.Static("/static", "./static")
 	router.LoadHTMLGlob("templates/*.html")
-	router.GET("/ascii-art", GetMessages)
-	router.POST("/ascii-art", AddMessage)
+
 	router.GET("/asciiart", RenderStringsPage)
-	router.GET("/test", RenderTestPage)
-	router.GET("/test2", RenderTestPage2)
+
 	router.Run("localhost:9090")
 
 	farewell(config.ResultsFileName)
