@@ -1,4 +1,4 @@
-package main
+package configuration
 
 type Config struct {
 	ResultsFileName            string
@@ -11,8 +11,8 @@ type Config struct {
 	InputString                string
 }
 
-func initConfig() Config {
-	return Config{
+func initConfig() *Config {
+	return &Config{
 		ResultsFileName:            "result.txt",
 		FileNameWithSymbolsDefault: "standard.txt",
 		ValidColors:                []string{"red", "orange", "yellow", "green", "blue", "indigo", "violet", "white"},
@@ -22,3 +22,5 @@ func initConfig() Config {
 		InputString:                "",
 	}
 }
+
+var ConfigInstance = initConfig()
