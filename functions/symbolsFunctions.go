@@ -33,7 +33,7 @@ func GetProcessedSlice(mapOfSymbols map[rune][]string, inputString, lettersToBeC
 	}
 
 	var result []string
-	for _, row := range splitStringByNewline(inputString) {
+	for _, row := range SplitStringByNewline(inputString) {
 		result = append(result, composeResultingSlice(mapOfSymbols, row, lettersToBeColored, colorFlag)...)
 	}
 
@@ -174,25 +174,6 @@ type winsize struct {
 }
 
 /*
-splitStringByNewline splits the input string by the newline symbol and returns a slice of strings.
-If the input string does not contain the newline symbol, the string is added to the slicedString
-and a new string (to add to the slicedString) begins to be formed.
-*/
-func splitStringByNewline(inputString string) []string {
-	var slicedString []string
-	var row string
-	for _, symbol := range inputString {
-		row, slicedString = updateSlicedString(row, symbol, slicedString)
-	}
-
-	if row != "" {
-		slicedString = append(slicedString, row)
-	}
-
-	return slicedString
-}
-
-/*
 updateSlicedString updates the slicedString based on the current symbol.
 */
 func updateSlicedString(row string, symbol rune, slicedString []string) (string, []string) {
@@ -286,11 +267,49 @@ func PrintASCIIArtNoFlag(input string, mapOfSymbols map[rune][]string) {
 GetASCIIARTSlice returns a slice of strings which represents the input string as ASCII art.
 Horizontal representation, row 1 of all the first symbols, row 2 of the all the first symbols, etc.
 */
+/*
+GetASCIIARTSlice returns a slice of strings which represents the input string as ASCII art.
+Horizontal representation, row 1 of all the first symbols, row 2 of the all the first symbols, etc.
+*/
 func GetASCIIARTSlice(input string, mapOfSymbols map[rune][]string) (result []string) {
-	for row := 0; row < len(mapOfSymbols[' ']); row++ {
+	if !CheckForNotAllowedSymbols(input) {
+		log.Fatal(errNotAllowedSymbols) //error can be retured to the caller here and after. but I think it's better to use log.Fatal in this case
+	}
+
+	for _, row := range SplitStringByNewline(input) {
+		if row != "" {
+			result = append(result, composeResultingSliceNoFlags(mapOfSymbols, row)...)
+		} else {
+			result = append(result, "") // If the row is empty, add an empty string to the result.
+		}
+	}
+	return
+}
+
+/*
+splitStringByNewline splits the input string by the newline symbol and returns a slice of strings.
+If the input string does not contain the newline symbol, the string is added to the slicedString
+and a new string (to add to the slicedString) begins to be formed.
+*/
+func SplitStringByNewline(inputString string) []string {
+	var slicedString []string
+	var row string
+	for _, symbol := range inputString {
+		row, slicedString = updateSlicedString(row, symbol, slicedString)
+	}
+
+	if row != "" {
+		slicedString = append(slicedString, row)
+	}
+
+	return slicedString
+}
+
+func composeResultingSliceNoFlags(mapOfSymbols map[rune][]string, row string) (result []string) {
+	for symbolInRow := 0; symbolInRow < len(mapOfSymbols[' ']); symbolInRow++ {
 		var currentRow string
-		for _, symbol := range input {
-			currentRow += mapOfSymbols[symbol][row]
+		for _, symbol := range row {
+			currentRow += mapOfSymbols[symbol][symbolInRow]
 		}
 		result = append(result, currentRow)
 	}
